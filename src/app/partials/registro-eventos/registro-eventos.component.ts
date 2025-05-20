@@ -113,10 +113,6 @@ export class RegistroEventosComponent implements OnInit {
     });
   }
 
-
-
-
-
   // Función para detectar el cambio de fecha
   public changeFecha(event: any) {
     if (event && event.value) {
@@ -209,7 +205,14 @@ public checkboxChange(event: any) {
     this.evento.horaInicio = this.convertirHoraA24h(this.evento.horaInicio);
     this.evento.horaFin = this.convertirHoraA24h(this.evento.horaFin);
 
-    this.eventosService.registrarEvento(this.evento).subscribe({
+    // Enviar solo los campos necesarios, asegurando responsable_user_id y responsable_rol
+    const eventoARegistrar = {
+      ...this.evento,
+      responsable_user_id: this.evento.responsable_user_id,
+      responsable_rol: this.evento.responsable_rol
+    };
+
+    this.eventosService.registrarEvento(eventoARegistrar).subscribe({
       next: (resp) => {
         alert('Evento registrado correctamente');
         this.router.navigate(['/eventos']);
@@ -272,6 +275,15 @@ public checkboxChange(event: any) {
       (this.evento.publico_json.includes('Estudiantes') ||
         this.evento.publico_json.includes('Profesores'))
     );
+  }
+
+  public onResponsableChange(event: any) {
+    const selectedUserId = event.value;
+    const responsable = this.responsables.find(r => r.user.id === selectedUserId);
+    if (responsable) {
+      this.evento.responsable_rol = responsable.rol;
+      this.evento.responsable_user_id = responsable.user.id;
+    }
   }
 
 }

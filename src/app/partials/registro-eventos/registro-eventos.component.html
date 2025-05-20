@@ -121,8 +121,8 @@
       <!-- Campo de Responsable del Evento -->
       <mat-form-field class="mat-input" appearance="outline">
         <mat-label>Responsable del Evento</mat-label>
-        <mat-select [(ngModel)]="evento.responsable" placeholder="Selecciona el responsable del evento">
-          <mat-option *ngFor="let resp of responsables" [value]="resp.id">{{ resp.user.first_name }} {{ resp.user.last_name ? resp.user.last_name : '' }} ({{ resp.rol }})</mat-option>
+        <mat-select [(ngModel)]="evento.responsable" (selectionChange)="onResponsableChange($event)" placeholder="Selecciona el responsable del evento">
+          <mat-option *ngFor="let resp of responsables" [value]="resp.user.id">{{ resp.user.first_name }} {{ resp.user.last_name ? resp.user.last_name : '' }} ({{ resp.rol }})</mat-option>
         </mat-select>
       </mat-form-field>
       <div *ngIf="errors.responsable" class="invalid-feedback">{{ errors.responsable }}</div>

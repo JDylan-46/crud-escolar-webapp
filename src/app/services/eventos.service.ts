@@ -67,6 +67,9 @@ export class EventosService {
     if (!this.validatorService.required(data['publico_json'])) {
       error['publico_json'] = "Debes seleccionar el público";
     }
+    if (!this.validatorService.required(data['responsable'])) {
+      error['responsable'] = "Debes seleccionar un responsable";
+    }
     /*if (!this.validatorService.required(data['programa_educativo'])) {
       error['programa_educativo'] = "Debes seleccionar el programa educativo";
     }*/
@@ -115,13 +118,13 @@ export class EventosService {
   }
 
   public actualizarEvento(evento: any): Observable<any> {
-  const token = this.facadeService.getSessionToken();
-  const headers = new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + token
-  });
+    const token = this.facadeService.getSessionToken();
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    });
 
-  return this.http.put<any>(`${environment.url_api}/eventos-edit/`, evento, { headers });
+    return this.http.put<any>(`${environment.url_api}/eventos-edit/`, evento, { headers });
   }
 
 

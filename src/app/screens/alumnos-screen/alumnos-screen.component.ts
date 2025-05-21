@@ -18,20 +18,9 @@ export class AlumnosScreenComponent {
   public token: string = '';
   public lista_alumnos: any[] = [];
 
-  //Para la tabla
-  displayedColumns: string[] = [
-    'matricula',
-    'nombre',
-    'email',
-    'fecha_nacimiento',
-    'curp',
-    'rfc',
-    'edad',
-    'telefono',
-    'ocupacion',
-    'editar',
-    'eliminar',
-  ];
+  // Columnas visibles según rol
+  displayedColumns: string[] = [];
+
   dataSource = new MatTableDataSource<DatosUsuario>(
     this.lista_alumnos as DatosUsuario[]
   );
@@ -52,10 +41,25 @@ export class AlumnosScreenComponent {
     this.name_user = this.facadeService.getUserCompleteName();
     this.rol = this.facadeService.getUserGroup();
 
-    //Obtener alumnos
-    this.obtenerAlumnos();
+    //  Mostrar columnas base
+    this.displayedColumns = [
+      'matricula',
+      'nombre',
+      'email',
+      'fecha_nacimiento',
+      'curp',
+      'rfc',
+      'edad',
+      'telefono',
+      'ocupacion',
+    ];
 
-    //Para paginator
+    // Solo los administradores pueden ver editar y eliminar
+    if (this.rol === 'administrador') {
+      this.displayedColumns.push('editar', 'eliminar');
+    }
+
+    this.obtenerAlumnos();
     this.initPaginator();
   }
 
@@ -93,15 +97,13 @@ export class AlumnosScreenComponent {
     this.alumnosService.obtenerListaAlumnos().subscribe(
       (response) => {
         this.lista_alumnos = response;
-        console.log('Lista users: ', this.lista_alumnos);
+
         if (this.lista_alumnos.length > 0) {
-          //Agregar datos del nombre e email
           this.lista_alumnos.forEach((usuario) => {
             usuario.first_name = usuario.user.first_name;
             usuario.last_name = usuario.user.last_name;
             usuario.email = usuario.user.email;
           });
-          console.log('Alumnos: ', this.lista_alumnos);
 
           this.dataSource = new MatTableDataSource<DatosUsuario>(
             this.lista_alumnos as DatosUsuario[]
@@ -117,9 +119,10 @@ export class AlumnosScreenComponent {
   public goEditar(idUser: number) {
     this.router.navigate(['registro-usuarios/alumno/' + idUser]);
   }
+
   public delete(idUser: number) {
     const dialogRef = this.dialog.open(EliminarUserModalComponent, {
-      data: { id: idUser, rol: 'alumno' }, //Se pasan valores a través del componente
+      data: { id: idUser, rol: 'alumno' },
       height: '288px',
       width: '328px',
     });
@@ -127,7 +130,6 @@ export class AlumnosScreenComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (result.isDelete) {
         console.log('Alumno eliminado');
-        //Recarga pagina
         window.location.reload();
       } else {
         alert('Alumno no eliminado');
@@ -135,7 +137,7 @@ export class AlumnosScreenComponent {
       }
     });
   }
-} //Fin de la clase
+}
 
 export interface DatosUsuario {
   id: number;

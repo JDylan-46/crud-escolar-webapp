@@ -18,19 +18,9 @@ export class MaestrosScreenComponent implements OnInit {
   public token: string = '';
   public lista_maestros: any[] = [];
 
-  //Para la tabla
-  displayedColumns: string[] = [
-    'id_trabajador',
-    'nombre',
-    'email',
-    'fecha_nacimiento',
-    'telefono',
-    'rfc',
-    'cubiculo',
-    'area_investigacion',
-    'editar',
-    'eliminar',
-  ];
+  // Columnas visibles en la tabla
+  displayedColumns: string[] = [];
+
   dataSource = new MatTableDataSource<DatosUsuario>(
     this.lista_maestros as DatosUsuario[]
   );
@@ -51,10 +41,24 @@ export class MaestrosScreenComponent implements OnInit {
     this.name_user = this.facadeService.getUserCompleteName();
     this.rol = this.facadeService.getUserGroup();
 
-    //Obtener maestros
-    this.obtenerMaestros();
+    // Columnas visibles para todos
+    this.displayedColumns = [
+      'id_trabajador',
+      'nombre',
+      'email',
+      'fecha_nacimiento',
+      'telefono',
+      'rfc',
+      'cubiculo',
+      'area_investigacion'
+    ];
 
-    //Para paginator
+    // Agregar columnas de acción solo si es administrador
+    if (this.rol === 'administrador') {
+      this.displayedColumns.push('editar', 'eliminar');
+    }
+
+    this.obtenerMaestros();
     this.initPaginator();
   }
 
@@ -88,19 +92,17 @@ export class MaestrosScreenComponent implements OnInit {
     //this.dataSourceIngresos.paginator = this.paginator;
   }
 
+
   public obtenerMaestros() {
     this.maestrosService.obtenerListaMaestros().subscribe(
       (response) => {
         this.lista_maestros = response;
-        console.log('Lista users: ', this.lista_maestros);
         if (this.lista_maestros.length > 0) {
-          //Agregar datos del nombre e email
           this.lista_maestros.forEach((usuario) => {
             usuario.first_name = usuario.user.first_name;
             usuario.last_name = usuario.user.last_name;
             usuario.email = usuario.user.email;
           });
-          console.log('Maestros: ', this.lista_maestros);
 
           this.dataSource = new MatTableDataSource<DatosUsuario>(
             this.lista_maestros as DatosUsuario[]
@@ -116,9 +118,10 @@ export class MaestrosScreenComponent implements OnInit {
   public goEditar(idUser: number) {
     this.router.navigate(['registro-usuarios/maestro/' + idUser]);
   }
+
   public delete(idUser: number) {
     const dialogRef = this.dialog.open(EliminarUserModalComponent, {
-      data: { id: idUser, rol: 'maestro' }, //Se pasan valores a través del componente
+      data: { id: idUser, rol: 'maestro' },
       height: '288px',
       width: '328px',
     });
@@ -126,7 +129,6 @@ export class MaestrosScreenComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result.isDelete) {
         console.log('Maestro eliminado');
-        //Recarga pagina
         window.location.reload();
       } else {
         alert('Maestro no eliminado');
@@ -134,7 +136,7 @@ export class MaestrosScreenComponent implements OnInit {
       }
     });
   }
-} //Fin de la clase
+}
 
 export interface DatosUsuario {
   id: number;
